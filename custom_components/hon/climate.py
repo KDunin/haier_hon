@@ -21,7 +21,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 from pyhon.appliance import HonAppliance
 from pyhon.parameter.range import HonParameterRange
 
@@ -104,7 +104,7 @@ CLIMATES: dict[
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
     entity: HonClimateEntity | HonACClimateEntity
@@ -130,7 +130,7 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
 
     def __init__(
         self,
-        hass: HomeAssistantType,
+        hass: HomeAssistant,
         entry: ConfigEntry,
         device: HonAppliance,
         description: HonACClimateEntityDescription,
@@ -289,8 +289,16 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonACClimateEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            if update:
+                _LOGGER.debug("AC climate entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("AC climate entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonACClimateEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)
 
 
 class HonClimateEntity(HonEntity, ClimateEntity):
@@ -299,7 +307,7 @@ class HonClimateEntity(HonEntity, ClimateEntity):
 
     def __init__(
         self,
-        hass: HomeAssistantType,
+        hass: HomeAssistant,
         entry: ConfigEntry,
         device: HonAppliance,
         description: HonClimateEntityDescription,
@@ -422,5 +430,13 @@ class HonClimateEntity(HonEntity, ClimateEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonClimateEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            if update:
+                _LOGGER.debug("Climate entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Climate entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonClimateEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)

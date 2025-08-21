@@ -9,7 +9,7 @@ from homeassistant.const import UnitOfTemperature, UnitOfTime, REVOLUTIONS_PER_M
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 
 from . import const
 from .const import DOMAIN
@@ -211,7 +211,7 @@ SELECTS["WD"] = unique_entities(SELECTS["WM"], SELECTS["TD"])
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
     entity: HonSelectEntity | HonConfigSelectEntity
@@ -267,11 +267,23 @@ class HonConfigSelectEntity(HonEntity, SelectEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        self._attr_available = self.available
-        self._attr_options = self.options
-        self._attr_current_option = self.current_option
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonConfigSelectEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            self._attr_available = self.available
+            self._attr_options = self.options
+            self._attr_current_option = self.current_option
+
+            _LOGGER.debug("Config select entity %s updated: available=%s, options=%s, current_option=%s",
+                         self._attr_unique_id, self._attr_available, self._attr_options, self._attr_current_option)
+
+            if update:
+                _LOGGER.debug("Config select entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Config select entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonConfigSelectEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)
 
     @property
     def available(self) -> bool:
@@ -330,8 +342,20 @@ class HonSelectEntity(HonEntity, SelectEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        self._attr_available = self.available
-        self._attr_options = self.options
-        self._attr_current_option = self.current_option
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonSelectEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            self._attr_available = self.available
+            self._attr_options = self.options
+            self._attr_current_option = self.current_option
+
+            _LOGGER.debug("Select entity %s updated: available=%s, options=%s, current_option=%s",
+                         self._attr_unique_id, self._attr_available, self._attr_options, self._attr_current_option)
+
+            if update:
+                _LOGGER.debug("Select entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Select entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonSelectEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)

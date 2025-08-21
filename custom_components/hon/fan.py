@@ -10,7 +10,7 @@ from homeassistant.components.fan import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 from homeassistant.util.percentage import (
     percentage_to_ranged_value,
     ranged_value_to_percentage,
@@ -36,7 +36,7 @@ FANS: dict[str, tuple[FanEntityDescription, ...]] = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
@@ -56,7 +56,7 @@ class HonFanEntity(HonEntity, FanEntity):
 
     def __init__(
         self,
-        hass: HomeAssistantType,
+        hass: HomeAssistant,
         entry: ConfigEntry,
         device: HonAppliance,
         description: FanEntityDescription,
@@ -116,16 +116,29 @@ class HonFanEntity(HonEntity, FanEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        wind_speed = self._device.settings.get(self.entity_description.key)
-        if isinstance(wind_speed, HonParameterRange) and len(wind_speed.values) > 1:
-            self._wind_speed = wind_speed
-            self._speed_range = (
-                int(self._wind_speed.values[1]),
-                int(self._wind_speed.values[-1]),
-            )
-            self._attr_percentage = self.percentage
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonFanEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            wind_speed = self._device.settings.get(self.entity_description.key)
+            if isinstance(wind_speed, HonParameterRange) and len(wind_speed.values) > 1:
+                self._wind_speed = wind_speed
+                self._speed_range = (
+                    int(self._wind_speed.values[1]),
+                    int(self._wind_speed.values[-1]),
+                )
+                self._attr_percentage = self.percentage
+                _LOGGER.debug("Fan entity %s updated wind speed settings: range=%s, percentage=%s",
+                             self._attr_unique_id, self._speed_range, self._attr_percentage)
+            else:
+                _LOGGER.debug("Fan entity %s wind speed not available or invalid", self._attr_unique_id)
+
+            if update:
+                _LOGGER.debug("Fan entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Fan entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonFanEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)
 
     @property
     def available(self) -> bool:

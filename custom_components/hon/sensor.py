@@ -20,11 +20,12 @@ from homeassistant.const import (
     UnitOfMass,
     UnitOfTime,
     UnitOfTemperature,
+    UnitOfPower,
 )
 from homeassistant.core import callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 
 from . import const
 from .const import DOMAIN
@@ -83,7 +84,7 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             name="Current Electricity Used",
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.POWER,
-            native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+            native_unit_of_measurement=UnitOfPower.WATT,
             icon="mdi:lightning-bolt",
             translation_key="energy_current",
         ),
@@ -808,7 +809,7 @@ SENSORS["WD"] = unique_entities(SENSORS["WM"], SENSORS["TD"])
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
     entity: HonSensorEntity | HonConfigSensorEntity
@@ -834,19 +835,38 @@ class HonSensorEntity(HonEntity, SensorEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        value = self._device.get(self.entity_description.key, "")
-        if self.entity_description.key == "programName":
-            if not (options := self._device.settings.get("startProgram.program")):
-                raise ValueError
-            self._attr_options = options.values + ["No Program"]
-        elif self.entity_description.option_list is not None:
-            self._attr_options = list(self.entity_description.option_list.values())
-            value = str(get_readable(self.entity_description, value))
-        if not value and self.entity_description.state_class is not None:
-            self._attr_native_value = 0
-        self._attr_native_value = value
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonSensorEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            value = self._device.get(self.entity_description.key, "")
+            _LOGGER.debug("Entity %s raw value for key %s: %s",
+                         self._attr_unique_id, self.entity_description.key, value)
+
+            if self.entity_description.key == "programName":
+                if not (options := self._device.settings.get("startProgram.program")):
+                    _LOGGER.error("Entity %s: No program options found", self._attr_unique_id)
+                    raise ValueError
+                self._attr_options = options.values + ["No Program"]
+                _LOGGER.debug("Entity %s program options: %s", self._attr_unique_id, self._attr_options)
+            elif self.entity_description.option_list is not None:
+                self._attr_options = list(self.entity_description.option_list.values())
+                value = str(get_readable(self.entity_description, value))
+                _LOGGER.debug("Entity %s processed value with options: %s", self._attr_unique_id, value)
+
+            if not value and self.entity_description.state_class is not None:
+                self._attr_native_value = 0
+                _LOGGER.debug("Entity %s set default value 0 for empty value", self._attr_unique_id)
+
+            self._attr_native_value = value
+            _LOGGER.debug("Entity %s final value: %s", self._attr_unique_id, self._attr_native_value)
+
+            if update:
+                _LOGGER.debug("Entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonSensorEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)
 
 
 class HonConfigSensorEntity(HonEntity, SensorEntity):
@@ -854,24 +874,43 @@ class HonConfigSensorEntity(HonEntity, SensorEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        sensor = self._device.settings.get(self.entity_description.key, None)
-        value: float | str
-        if self.entity_description.state_class is not None:
-            if sensor and sensor.value:
-                value = (
-                    float(sensor.value)
-                    if "." in str(sensor.value)
-                    else int(sensor.value)
-                )
+        _LOGGER.debug("HonConfigSensorEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            sensor = self._device.settings.get(self.entity_description.key, None)
+            _LOGGER.debug("Entity %s sensor setting: %s", self._attr_unique_id, sensor)
+
+            value: float | str
+            if self.entity_description.state_class is not None:
+                if sensor and sensor.value:
+                    value = (
+                        float(sensor.value)
+                        if "." in str(sensor.value)
+                        else int(sensor.value)
+                    )
+                    _LOGGER.debug("Entity %s numeric value: %s", self._attr_unique_id, value)
+                else:
+                    value = 0
+                    _LOGGER.debug("Entity %s using default value 0", self._attr_unique_id)
+            elif sensor is not None:
+                value = sensor.value
+                _LOGGER.debug("Entity %s string value: %s", self._attr_unique_id, value)
             else:
                 value = 0
-        elif sensor is not None:
-            value = sensor.value
-        else:
-            value = 0
-        if self.entity_description.option_list is not None and not value == 0:
-            self._attr_options = list(self.entity_description.option_list.values())
-            value = get_readable(self.entity_description, value)
-        self._attr_native_value = value
-        if update:
-            self.async_write_ha_state()
+                _LOGGER.debug("Entity %s no sensor, using default value 0", self._attr_unique_id)
+
+            if self.entity_description.option_list is not None and not value == 0:
+                self._attr_options = list(self.entity_description.option_list.values())
+                value = get_readable(self.entity_description, value)
+                _LOGGER.debug("Entity %s processed value with options: %s", self._attr_unique_id, value)
+
+            self._attr_native_value = value
+            _LOGGER.debug("Entity %s final value: %s", self._attr_unique_id, self._attr_native_value)
+
+            if update:
+                _LOGGER.debug("Entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonConfigSensorEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)

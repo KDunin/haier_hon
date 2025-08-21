@@ -10,7 +10,7 @@ from homeassistant.components.light import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 from pyhon.appliance import HonAppliance
 from pyhon.parameter.range import HonParameterRange
 
@@ -53,7 +53,7 @@ LIGHTS: dict[str, tuple[LightEntityDescription, ...]] = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
@@ -73,7 +73,7 @@ class HonLightEntity(HonEntity, LightEntity):
 
     def __init__(
         self,
-        hass: HomeAssistantType,
+        hass: HomeAssistant,
         entry: ConfigEntry,
         device: HonAppliance,
         description: LightEntityDescription,
@@ -133,10 +133,21 @@ class HonLightEntity(HonEntity, LightEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        self._attr_is_on = self.is_on
-        self._attr_brightness = self.brightness
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonLightEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            self._attr_is_on = self.is_on
+            self._attr_brightness = self.brightness
+            _LOGGER.debug("Light entity %s updated: is_on=%s, brightness=%s",
+                         self._attr_unique_id, self._attr_is_on, self._attr_brightness)
+
+            if update:
+                _LOGGER.debug("Light entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Light entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonLightEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)
 
     @property
     def available(self) -> bool:

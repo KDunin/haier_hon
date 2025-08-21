@@ -6,7 +6,7 @@ from homeassistant.components.button import ButtonEntityDescription, ButtonEntit
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 from pyhon.appliance import HonAppliance
 
 from .const import DOMAIN
@@ -56,7 +56,7 @@ BUTTONS: dict[str, tuple[ButtonEntityDescription, ...]] = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities: list[HonButtonType] = []
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
@@ -74,21 +74,32 @@ class HonButtonEntity(HonEntity, ButtonEntity):
     entity_description: ButtonEntityDescription
 
     async def async_press(self) -> None:
-        await self._device.commands[self.entity_description.key].send()
+        _LOGGER.debug("Button %s pressed, executing command %s",
+                     self._attr_unique_id, self.entity_description.key)
+        try:
+            await self._device.commands[self.entity_description.key].send()
+            _LOGGER.debug("Button %s command executed successfully", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Button %s command failed: %s", self._attr_unique_id, e, exc_info=True)
+            raise
 
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return (
+        result = (
             super().available
             and int(self._device.get("remoteCtrValid", "1")) == 1
             and self._device.connection
         )
+        _LOGGER.debug("Button %s available: %s (super=%s, remoteCtrValid=%s, connection=%s)",
+                     self._attr_unique_id, result, super().available,
+                     self._device.get("remoteCtrValid", "1"), self._device.connection)
+        return result
 
 
 class HonDeviceInfo(HonEntity, ButtonEntity):
     def __init__(
-        self, hass: HomeAssistantType, entry: ConfigEntry, device: HonAppliance
+        self, hass: HomeAssistant, entry: ConfigEntry, device: HonAppliance
     ) -> None:
         super().__init__(hass, entry, device)
 
@@ -97,18 +108,21 @@ class HonDeviceInfo(HonEntity, ButtonEntity):
         self._attr_name = "Show Device Info"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_entity_registry_enabled_default = False
+        _LOGGER.debug("Created HonDeviceInfo button for device %s", device.nick_name)
 
     async def async_press(self) -> None:
+        _LOGGER.debug("Device info button pressed for device %s", self._device.nick_name)
         title = f"{self._device.nick_name} Device Info"
         persistent_notification.create(
             self._hass, f"````\n```\n{self._device.diagnose}\n```\n````", title
         )
         _LOGGER.info(self._device.diagnose.replace(" ", "\u200B "))
+        _LOGGER.debug("Device info notification created for device %s", self._device.nick_name)
 
 
 class HonDataArchive(HonEntity, ButtonEntity):
     def __init__(
-        self, hass: HomeAssistantType, entry: ConfigEntry, device: HonAppliance
+        self, hass: HomeAssistant, entry: ConfigEntry, device: HonAppliance
     ) -> None:
         super().__init__(hass, entry, device)
 
@@ -117,16 +131,27 @@ class HonDataArchive(HonEntity, ButtonEntity):
         self._attr_name = "Create Data Archive"
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_entity_registry_enabled_default = False
+        _LOGGER.debug("Created HonDataArchive button for device %s", device.nick_name)
 
     async def async_press(self) -> None:
+        _LOGGER.debug("Data archive button pressed for device %s", self._device.nick_name)
         if (config_dir := self._hass.config.config_dir) is None:
+            _LOGGER.error("Missing Config Dir for data archive creation")
             raise ValueError("Missing Config Dir")
-        path = Path(config_dir) / "www"
-        data = await self._device.data_archive(path)
-        title = f"{self._device.nick_name} Data Archive"
-        text = (
-            f'<a href="/local/{data}" target="_blank">{data}</a> <br/><br/> '
-            f"Use this data for [GitHub Issues of Haier hOn](https://github.com/Andre0512/hon).<br/>"
-            f"Or add it to the [hon-test-data collection](https://github.com/Andre0512/hon-test-data)."
-        )
-        persistent_notification.create(self._hass, text, title)
+
+        try:
+            path = Path(config_dir) / "www"
+            data = await self._device.data_archive(path)
+            _LOGGER.debug("Data archive created at: %s", data)
+
+            title = f"{self._device.nick_name} Data Archive"
+            text = (
+                f'<a href="/local/{data}" target="_blank">{data}</a> <br/><br/> '
+                f"Use this data for [GitHub Issues of Haier hOn](https://github.com/Andre0512/hon).<br/>"
+                f"Or add it to the [hon-test-data collection](https://github.com/Andre0512/hon-test-data)."
+            )
+            persistent_notification.create(self._hass, text, title)
+            _LOGGER.debug("Data archive notification created for device %s", self._device.nick_name)
+        except Exception as e:
+            _LOGGER.error("Failed to create data archive for device %s: %s", self._device.nick_name, e, exc_info=True)
+            raise

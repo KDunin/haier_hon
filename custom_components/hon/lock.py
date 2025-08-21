@@ -5,7 +5,7 @@ from homeassistant.components.lock import LockEntity, LockEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import HomeAssistantType
+from homeassistant.core import HomeAssistant
 from pyhon.parameter.base import HonParameter
 from pyhon.parameter.range import HonParameterRange
 
@@ -26,7 +26,7 @@ LOCKS: dict[str, tuple[LockEntityDescription, ...]] = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
@@ -81,6 +81,16 @@ class HonLockEntity(HonEntity, LockEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        self._attr_is_locked = self.is_locked
-        if update:
-            self.async_write_ha_state()
+        _LOGGER.debug("HonLockEntity %s handling coordinator update", self._attr_unique_id)
+
+        try:
+            self._attr_is_locked = self.is_locked
+            _LOGGER.debug("Lock entity %s updated is_locked state: %s", self._attr_unique_id, self._attr_is_locked)
+
+            if update:
+                _LOGGER.debug("Lock entity %s writing HA state", self._attr_unique_id)
+                self.async_write_ha_state()
+                _LOGGER.debug("Lock entity %s successfully wrote HA state", self._attr_unique_id)
+        except Exception as e:
+            _LOGGER.error("Error in HonLockEntity %s coordinator update: %s",
+                         self._attr_unique_id, e, exc_info=True)
