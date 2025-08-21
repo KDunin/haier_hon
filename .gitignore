@@ -2,7 +2,4 @@ __pycache__/
 .idea/
 scripts/translations/
 scripts/test*
-/*
-!/custom_components/
-/custom_components/*
-!/custom_components/hon/
+.venv/
