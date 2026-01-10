@@ -38,13 +38,19 @@ class HonDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def async_set_updated_data(self, data: dict[str, Any]) -> None:
         """Set updated data with enhanced logging."""
         _LOGGER.debug("Coordinator %s received update data: %s", self.name, data)
-        _LOGGER.info("Coordinator %s updating data for %d listeners", self.name, len(self._listeners))
+        _LOGGER.info(
+            "Coordinator %s updating data for %d listeners",
+            self.name,
+            len(self._listeners),
+        )
 
         try:
             super().async_set_updated_data(data)
             _LOGGER.debug("Coordinator %s successfully updated data", self.name)
         except Exception as e:
-            _LOGGER.error("Coordinator %s failed to update data: %s", self.name, e, exc_info=True)
+            _LOGGER.error(
+                "Coordinator %s failed to update data: %s", self.name, e, exc_info=True
+            )
             raise
 
 
@@ -78,7 +84,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     def make_threadsafe_callback(hass, coordinator):
         def wrapper(*args, **kwargs):
-            _LOGGER.debug("Threadsafe callback triggered with args: %s, kwargs: %s", args, kwargs)
+            _LOGGER.debug(
+                "Threadsafe callback triggered with args: %s, kwargs: %s", args, kwargs
+            )
             try:
                 # Schedule the coordinator update to run in the event loop
                 hass.loop.call_soon_threadsafe(
@@ -87,13 +95,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.debug("Threadsafe callback executed successfully")
             except Exception as e:
                 _LOGGER.error("Threadsafe callback failed: %s", e, exc_info=True)
+
         return wrapper
 
     # Subscribe to updates from the Hon instance
-    _LOGGER.info("Setting up update subscription for %d appliances", len(hon.appliances))
+    _LOGGER.info(
+        "Setting up update subscription for %d appliances", len(hon.appliances)
+    )
     for appliance in hon.appliances:
-        _LOGGER.debug("Appliance: %s (%s) - Connection: %s",
-                     appliance.nick_name, appliance.appliance_type, appliance.connection)
+        _LOGGER.debug(
+            "Appliance: %s (%s) - Connection: %s",
+            appliance.nick_name,
+            appliance.appliance_type,
+            appliance.connection,
+        )
 
     hon.subscribe_updates(make_threadsafe_callback(hass, coordinator))
     _LOGGER.info("Update subscription established")
@@ -107,7 +122,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_forward_entry_setups_with_error_handling(hass: HomeAssistant, entry: ConfigEntry) -> None:
+async def async_forward_entry_setups_with_error_handling(
+    hass: HomeAssistant, entry: ConfigEntry
+) -> None:
     """Forward entry setups with error handling for duplicate setup errors."""
     try:
         _LOGGER.debug("Setting up platforms: %s", PLATFORMS)
@@ -115,7 +132,11 @@ async def async_forward_entry_setups_with_error_handling(hass: HomeAssistant, en
         _LOGGER.debug("Successfully set up platforms: %s", PLATFORMS)
     except ValueError as e:
         if "has already been setup" in str(e):
-            _LOGGER.debug("Platform %s already set up for entry %s, ignoring", PLATFORMS, entry.entry_id)
+            _LOGGER.debug(
+                "Platform %s already set up for entry %s, ignoring",
+                PLATFORMS,
+                entry.entry_id,
+            )
         else:
             # Re-raise other ValueError exceptions
             _LOGGER.error("ValueError setting up platform %s: %s", PLATFORMS, e)
