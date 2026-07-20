@@ -50,13 +50,6 @@ class HonEntity(CoordinatorEntity[DataUpdateCoordinator[dict[str, Any]]]):
             serial_number=self._device.get("serialNumber", ""),
         )
 
-        _LOGGER.debug(
-            "Created entity %s for device %s (%s)",
-            self._attr_unique_id,
-            device.nick_name,
-            device.appliance_type,
-        )
-
         self._handle_coordinator_update(update=False)
 
     @property
@@ -66,37 +59,21 @@ class HonEntity(CoordinatorEntity[DataUpdateCoordinator[dict[str, Any]]]):
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
         """Handle coordinator updates."""
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug(
+                "Entity %s handling coordinator update (update=%s), "
+                "connection status: %s, remote control valid: %s",
+                self._attr_unique_id,
+                update,
+                self._device.get("attributes.lastConnEvent.category", "UNKNOWN"),
+                self._device.get("remoteCtrValid", "UNKNOWN"),
+            )
+
+        if not update:
+            return
+
         try:
-            if _LOGGER.isEnabledFor(logging.DEBUG):
-                _LOGGER.debug(
-                    "Entity %s handling coordinator update (update=%s)",
-                    self._attr_unique_id,
-                    update,
-                )
-
-                # Log device connection status
-                connection_status = self._device.get(
-                    "attributes.lastConnEvent.category", "UNKNOWN"
-                )
-                remote_ctrl_valid = self._device.get("remoteCtrValid", "UNKNOWN")
-                _LOGGER.debug(
-                    "Device %s connection status: %s, remote control valid: %s",
-                    self._device.nick_name,
-                    connection_status,
-                    remote_ctrl_valid,
-                )
-
-            if update:
-                if _LOGGER.isEnabledFor(logging.DEBUG):
-                    _LOGGER.debug(
-                        "Writing HA state for entity %s", self._attr_unique_id
-                    )
-                self.async_write_ha_state()
-                if _LOGGER.isEnabledFor(logging.DEBUG):
-                    _LOGGER.debug(
-                        "Successfully wrote HA state for entity %s",
-                        self._attr_unique_id,
-                    )
+            self.async_write_ha_state()
         except Exception as e:
             _LOGGER.error(
                 "Error updating entity %s: %s", self.entity_id, e, exc_info=True

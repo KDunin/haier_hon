@@ -6,10 +6,14 @@
   ],
   "config_flow": true,
   "documentation": "https://github.com/Andre0512/hon/",
+  "integration_type": "hub",
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/Andre0512/hon/issues",
+  "loggers": [
+    "pyhon"
+  ],
   "requirements": [
     "pyhOn @ git+https://github.com/KDunin/pyhOn.git@main"
   ],
-  "version": "0.14.3"
+  "version": "0.14.4"
 }

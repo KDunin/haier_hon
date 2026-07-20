@@ -29,24 +29,21 @@ CONFIG_SCHEMA = vol.Schema(
 
 
 class HonDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Custom coordinator with enhanced logging for hOn integration."""
+    """Coordinator for hOn integration, with debug-level tracing of updates."""
 
     def __init__(self, hass: HomeAssistant, name: str):
         super().__init__(hass, _LOGGER, name=name)
-        _LOGGER.info("Initialized HonDataUpdateCoordinator: %s", name)
+        _LOGGER.debug("Initialized HonDataUpdateCoordinator: %s", name)
 
     def async_set_updated_data(self, data: dict[str, Any]) -> None:
-        """Set updated data with enhanced logging."""
-        _LOGGER.debug("Coordinator %s received update data: %s", self.name, data)
-        _LOGGER.info(
+        """Set updated data, logging failures so a broken push doesn't fail silently."""
+        _LOGGER.debug(
             "Coordinator %s updating data for %d listeners",
             self.name,
             len(self._listeners),
         )
-
         try:
             super().async_set_updated_data(data)
-            _LOGGER.debug("Coordinator %s successfully updated data", self.name)
         except Exception as e:
             _LOGGER.error(
                 "Coordinator %s failed to update data: %s", self.name, e, exc_info=True
@@ -55,7 +52,7 @@ class HonDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.info("Setting up hOn integration for entry: %s", entry.entry_id)
+    _LOGGER.debug("Setting up hOn integration for entry: %s", entry.entry_id)
 
     session = aiohttp_client.async_get_clientsession(hass)
     if (config_dir := hass.config.config_dir) is None:
@@ -70,7 +67,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             test_data_path=Path(config_dir),
             refresh_token=entry.data.get(CONF_REFRESH_TOKEN, ""),
         ).create()
-        _LOGGER.info("Successfully created Hon instance for %s", entry.data[CONF_EMAIL])
     except Exception as e:
         _LOGGER.error("Failed to create Hon instance: %s", e)
         raise
@@ -84,41 +80,40 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     def make_threadsafe_callback(hass, coordinator):
         def wrapper(*args, **kwargs):
-            _LOGGER.debug(
-                "Threadsafe callback triggered with args: %s, kwargs: %s", args, kwargs
-            )
             try:
                 # Schedule the coordinator update to run in the event loop
                 hass.loop.call_soon_threadsafe(
                     lambda: coordinator.async_set_updated_data({})
                 )
-                _LOGGER.debug("Threadsafe callback executed successfully")
             except Exception as e:
                 _LOGGER.error("Threadsafe callback failed: %s", e, exc_info=True)
 
         return wrapper
 
     # Subscribe to updates from the Hon instance
-    _LOGGER.info(
+    _LOGGER.debug(
         "Setting up update subscription for %d appliances", len(hon.appliances)
     )
-    for appliance in hon.appliances:
-        _LOGGER.debug(
-            "Appliance: %s (%s) - Connection: %s",
-            appliance.nick_name,
-            appliance.appliance_type,
-            appliance.connection,
-        )
+    if _LOGGER.isEnabledFor(logging.DEBUG):
+        for appliance in hon.appliances:
+            _LOGGER.debug(
+                "Appliance: %s (%s) - Connection: %s",
+                appliance.nick_name,
+                appliance.appliance_type,
+                appliance.connection,
+            )
 
     hon.subscribe_updates(make_threadsafe_callback(hass, coordinator))
-    _LOGGER.info("Update subscription established")
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.unique_id] = {"hon": hon, "coordinator": coordinator}
-    _LOGGER.info("Stored coordinator and hon instance in hass.data")
 
     await async_forward_entry_setups_with_error_handling(hass, entry)
-    _LOGGER.info("Successfully set up hOn integration for entry: %s", entry.entry_id)
+    _LOGGER.info(
+        "Set up hOn integration for %s (%d appliances)",
+        entry.title,
+        len(hon.appliances),
+    )
     return True
 
 
@@ -148,7 +143,7 @@ async def async_forward_entry_setups_with_error_handling(
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.info("Unloading hOn integration for entry: %s", entry.entry_id)
+    _LOGGER.debug("Unloading hOn integration for entry: %s", entry.entry_id)
 
     refresh_token = hass.data[DOMAIN][entry.unique_id]["hon"].api.auth.refresh_token
 
@@ -156,9 +151,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry, data={**entry.data, CONF_REFRESH_TOKEN: refresh_token}
     )
     unload = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload:
-        if not hass.data[DOMAIN]:
-            hass.data.pop(DOMAIN, None)
-            _LOGGER.info("Removed DOMAIN from hass.data")
-    _LOGGER.info("Unload result: %s", unload)
+    if unload and not hass.data[DOMAIN]:
+        hass.data.pop(DOMAIN, None)
     return unload
