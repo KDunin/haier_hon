@@ -6,10 +6,12 @@ from typing import Any
 import voluptuous as vol  # type: ignore[import-untyped]
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import config_validation as cv, aiohttp_client
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from pyhon import Hon
+from pyhon.exceptions import HonAuthenticationError
 
 from .const import DOMAIN, PLATFORMS, MOBILE_ID, CONF_REFRESH_TOKEN
 
@@ -67,6 +69,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             test_data_path=Path(config_dir),
             refresh_token=entry.data.get(CONF_REFRESH_TOKEN, ""),
         ).create()
+    except HonAuthenticationError as e:
+        _LOGGER.warning("Authentication failed for %s: %s", entry.data[CONF_EMAIL], e)
+        raise ConfigEntryAuthFailed("Invalid hOn credentials") from e
     except Exception as e:
         _LOGGER.error("Failed to create Hon instance: %s", e)
         raise

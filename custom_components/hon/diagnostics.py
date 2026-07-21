@@ -46,7 +46,9 @@ def _appliance_dump(appliance: HonAppliance) -> dict[str, Any]:
     }
 
 
-def _find_appliance(hass: HomeAssistant, entry: ConfigEntry, unique_id: str) -> HonAppliance | None:
+def _find_appliance(
+    hass: HomeAssistant, entry: ConfigEntry, unique_id: str
+) -> HonAppliance | None:
     hon = hass.data[DOMAIN][entry.unique_id]["hon"]
     for appliance in hon.appliances:
         if appliance.unique_id == unique_id:

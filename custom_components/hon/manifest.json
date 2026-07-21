@@ -15,5 +15,5 @@
   "requirements": [
     "pyhOn @ git+https://github.com/KDunin/pyhOn.git@main"
   ],
-  "version": "0.14.4"
+  "version": "0.14.5"
 }

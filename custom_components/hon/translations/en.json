@@ -2294,7 +2294,20 @@
                     "email": "Email",
                     "password": "Password"
                 }
+            },
+            "reauth_confirm": {
+                "title": "Reauthenticate hOn",
+                "description": "The connection for {email} needs to be re-authenticated. Please enter your current password.",
+                "data": {
+                    "password": "Password"
+                }
             }
+        },
+        "abort": {
+            "reauth_successful": "Re-authentication was successful"
+        },
+        "error": {
+            "invalid_auth": "Invalid password"
         }
     }
 }
