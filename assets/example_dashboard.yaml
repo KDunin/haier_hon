@@ -1,0 +1,183 @@
+# Example Lovelace dashboard for the Haier hOn integration
+#
+# This is a starting point, not a drop-in config. Every card below only
+# uses built-in Home Assistant cards (tile / thermostat / entities / glance),
+# so nothing extra needs to be installed via HACS.
+#
+# HOW TO USE
+# 1. Settings > Dashboards > Add Dashboard > "New dashboard from scratch",
+#    then open the three-dot menu > "Edit in YAML" and paste in (part of)
+#    this file. Or copy individual views/cards into an existing dashboard.
+# 2. Fix the entity IDs. Home Assistant builds them from the appliance's
+#    nickname (set in the Haier hOn / candy simply-Fi app) plus the entity
+#    name, e.g. a washer nicknamed "Washing Machine" gets
+#    sensor.washing_machine_program_phase for its "Program Phase" sensor.
+#    Every placeholder below assumes the appliance kept its default English
+#    name (washing_machine, tumble_dryer, dish_washer, oven,
+#    air_conditioner, fridge) - replace with your actual entity IDs from
+#    Settings > Devices & Services > Entities, filtered by the "Haier hOn"
+#    integration.
+# 3. Delete the views for appliances you don't own.
+#
+# See the README's "<Appliance> Entities" tables for the full list of
+# sensors/controls available per appliance type if you want to extend this.
+
+views:
+  - title: Washing Machine
+    path: washing-machine
+    icon: mdi:washing-machine
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.washing_machine_machine_status
+            name: Status
+          - type: tile
+            entity: sensor.washing_machine_program
+            name: Program
+          - type: tile
+            entity: sensor.washing_machine_program_phase
+            name: Phase
+          - type: tile
+            entity: sensor.washing_machine_remaining_time
+            name: Time remaining
+      - type: entities
+        title: Washing Machine
+        entities:
+          - entity: switch.washing_machine_washing_machine
+            name: Power (start / stop)
+          - entity: switch.washing_machine_pause_washing_machine
+            name: Pause
+          - entity: select.washing_machine_program
+            name: Program
+          - entity: select.washing_machine_temperature
+          - entity: select.washing_machine_spin_speed
+          - entity: binary_sensor.washing_machine_door
+          - entity: binary_sensor.washing_machine_door_lock
+          - entity: binary_sensor.washing_machine_remote_control
+
+  - title: Tumble Dryer
+    path: tumble-dryer
+    icon: mdi:tumble-dryer
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.tumble_dryer_machine_status
+            name: Status
+          - type: tile
+            entity: sensor.tumble_dryer_program
+            name: Program
+          - type: tile
+            entity: sensor.tumble_dryer_program_phase
+            name: Phase
+          - type: tile
+            entity: sensor.tumble_dryer_remaining_time
+            name: Time remaining
+      - type: entities
+        title: Tumble Dryer
+        entities:
+          - entity: switch.tumble_dryer_tumble_dryer
+            name: Power (start / stop)
+          - entity: switch.tumble_dryer_pause_tumble_dryer
+            name: Pause
+          - entity: select.tumble_dryer_program
+            name: Program
+          - entity: select.tumble_dryer_dry_level
+          - entity: binary_sensor.tumble_dryer_door
+
+  - title: Dish Washer
+    path: dish-washer
+    icon: mdi:dishwasher
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.dish_washer_machine_status
+            name: Status
+          - type: tile
+            entity: sensor.dish_washer_program
+            name: Program
+          - type: tile
+            entity: sensor.dish_washer_program_phase
+            name: Phase
+          - type: tile
+            entity: sensor.dish_washer_remaining_time
+            name: Time remaining
+      - type: entities
+        title: Dish Washer
+        entities:
+          - entity: switch.dish_washer_dish_washer
+            name: Power (start / stop)
+          - entity: select.dish_washer_program
+            name: Program
+          - entity: binary_sensor.dish_washer_door
+          - entity: binary_sensor.dish_washer_salt
+          - entity: binary_sensor.dish_washer_rinse_aid
+
+  - title: Oven
+    path: oven
+    icon: mdi:toaster-oven
+    cards:
+      - type: thermostat
+        entity: climate.oven_oven
+      - type: entities
+        title: Oven
+        entities:
+          - entity: switch.oven_oven
+            name: Power (start / stop)
+          - entity: select.oven_program
+            name: Program
+          - entity: sensor.oven_remaining_time
+          - entity: sensor.oven_temperature
+
+  - title: Air Conditioner
+    path: air-conditioner
+    icon: mdi:air-conditioner
+    cards:
+      - type: thermostat
+        entity: climate.air_conditioner_air_conditioner
+      - type: entities
+        title: Air Conditioner
+        entities:
+          - entity: select.air_conditioner_program
+            name: Mode / Program
+          - entity: select.air_conditioner_fan_direction_horizontal
+          - entity: select.air_conditioner_fan_direction_vertical
+          - entity: select.air_conditioner_eco_pilot
+          - entity: switch.air_conditioner_silent_mode
+          - entity: switch.air_conditioner_rapid_mode
+          - entity: switch.air_conditioner_self_cleaning
+          - entity: sensor.air_conditioner_indoor_temperature
+          - entity: sensor.air_conditioner_outdoor_temperature
+
+  - title: Fridge
+    path: fridge
+    icon: mdi:fridge
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: thermostat
+            entity: climate.fridge_fridge
+          - type: thermostat
+            entity: climate.fridge_freezer
+      - type: entities
+        title: Fridge & Freezer
+        entities:
+          - entity: switch.fridge_super_cool
+          - entity: switch.fridge_super_freeze
+          - entity: switch.fridge_auto_set_mode
+          - entity: binary_sensor.fridge_door1_status_fridge
+            name: Fridge door
+          - entity: binary_sensor.fridge_door1_status_freezer
+            name: Freezer door
+          - entity: sensor.fridge_room_temperature
+          - entity: sensor.fridge_room_humidity

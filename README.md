@@ -750,6 +750,12 @@ _Restart Home Assistant_
 **Method 2**: Settings > Devices & Services > Add Integration > **Haier hOn**  
 _If the integration is not in the list, you need to clear the browser cache._
 
+## Example Dashboard
+[`assets/example_dashboard.yaml`](assets/example_dashboard.yaml) has ready-to-adapt Lovelace views for washing
+machine, tumble dryer, dishwasher, oven, air conditioner and fridge, built only from Home Assistant's built-in
+cards (no HACS frontend cards required). Copy the views you need into a dashboard and swap in your own entity
+IDs - see the comment header in the file for the exact steps.
+
 ## Supported Languages
 Translation of internal names like programs are available for all languages which are official supported by the hOn app:
 * 🇸🇦 Arabic
