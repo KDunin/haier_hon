@@ -842,6 +842,20 @@ class HonSensorEntity(HonEntity, SensorEntity):
             _LOGGER.debug("Entity %s raw value for key %s: %s",
                          self._attr_unique_id, self.entity_description.key, value)
 
+            zone_setpoint_key = {"tempZ1": "tempSelZ1", "tempZ2": "tempSelZ2"}.get(
+                self.entity_description.key
+            )
+            if zone_setpoint_key and str(value) == "-38":
+                # Some REF models report a fixed -38 sentinel instead of a real
+                # zone temperature when the sensor reading isn't available.
+                # Fall back to the configured setpoint as the best available estimate.
+                # See https://github.com/Andre0512/hon/issues/259
+                value = self._device.get(zone_setpoint_key, "")
+                _LOGGER.debug(
+                    "Entity %s: %s reported -38 sentinel, using setpoint %s=%s instead",
+                    self._attr_unique_id, self.entity_description.key, zone_setpoint_key, value,
+                )
+
             if self.entity_description.key == "programName":
                 if not (options := self._device.settings.get("startProgram.program")):
                     _LOGGER.error("Entity %s: No program options found", self._attr_unique_id)
