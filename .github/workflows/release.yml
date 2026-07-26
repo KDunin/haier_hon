@@ -4,22 +4,21 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
   release-zip:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: ZIP Component Dir
         run: |
           cd ${{ github.workspace }}/custom_components/hon
-          zip -r haier_hon.zip ./
+          zip -r haier_hon.zip ./ -x '__pycache__/*'
 
-      - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Attach zip to release
+        uses: softprops/action-gh-release@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/custom_components/hon/haier_hon.zip
-          asset_name: haier_hon.zip
-          tag: ${{ github.ref }}
-          overwrite: true
+          files: ${{ github.workspace }}/custom_components/hon/haier_hon.zip
