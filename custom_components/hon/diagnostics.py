@@ -50,7 +50,8 @@ def _find_appliance(
     hass: HomeAssistant, entry: ConfigEntry, unique_id: str
 ) -> HonAppliance | None:
     hon = hass.data[DOMAIN][entry.unique_id]["hon"]
-    for appliance in hon.appliances:
+    appliances: list[HonAppliance] = hon.appliances
+    for appliance in appliances:
         if appliance.unique_id == unique_id:
             return appliance
     return None

@@ -53,7 +53,7 @@ class HonEntity(CoordinatorEntity[DataUpdateCoordinator[dict[str, Any]]]):
         self._handle_coordinator_update(update=False)
 
     @property
-    def device_info(self) -> DeviceInfo:
+    def device_info(self) -> DeviceInfo | None:
         return self._attr_device_info
 
     @callback

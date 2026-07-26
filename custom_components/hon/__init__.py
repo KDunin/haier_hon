@@ -1,9 +1,10 @@
 import asyncio
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import voluptuous as vol  # type: ignore[import-untyped]
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -83,8 +84,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinator: HonDataUpdateCoordinator = HonDataUpdateCoordinator(hass, DOMAIN)
 
-    def make_threadsafe_callback(hass, coordinator):
-        def wrapper(*args, **kwargs):
+    def make_threadsafe_callback(
+        hass: HomeAssistant, coordinator: HonDataUpdateCoordinator
+    ) -> Callable[..., None]:
+        def wrapper(*args: Any, **kwargs: Any) -> None:
             try:
                 # Schedule the coordinator update to run in the event loop
                 hass.loop.call_soon_threadsafe(

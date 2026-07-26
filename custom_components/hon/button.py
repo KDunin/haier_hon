@@ -74,13 +74,20 @@ class HonButtonEntity(HonEntity, ButtonEntity):
     entity_description: ButtonEntityDescription
 
     async def async_press(self) -> None:
-        _LOGGER.debug("Button %s pressed, executing command %s",
-                     self._attr_unique_id, self.entity_description.key)
+        _LOGGER.debug(
+            "Button %s pressed, executing command %s",
+            self._attr_unique_id,
+            self.entity_description.key,
+        )
         try:
             await self._device.commands[self.entity_description.key].send()
-            _LOGGER.debug("Button %s command executed successfully", self._attr_unique_id)
+            _LOGGER.debug(
+                "Button %s command executed successfully", self._attr_unique_id
+            )
         except Exception as e:
-            _LOGGER.error("Button %s command failed: %s", self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Button %s command failed: %s", self._attr_unique_id, e, exc_info=True
+            )
             raise
 
     @property
@@ -91,9 +98,14 @@ class HonButtonEntity(HonEntity, ButtonEntity):
             and int(self._device.get("remoteCtrValid", "1")) == 1
             and self._device.connection
         )
-        _LOGGER.debug("Button %s available: %s (super=%s, remoteCtrValid=%s, connection=%s)",
-                     self._attr_unique_id, result, super().available,
-                     self._device.get("remoteCtrValid", "1"), self._device.connection)
+        _LOGGER.debug(
+            "Button %s available: %s (super=%s, remoteCtrValid=%s, connection=%s)",
+            self._attr_unique_id,
+            result,
+            super().available,
+            self._device.get("remoteCtrValid", "1"),
+            self._device.connection,
+        )
         return result
 
 
@@ -111,13 +123,17 @@ class HonDeviceInfo(HonEntity, ButtonEntity):
         _LOGGER.debug("Created HonDeviceInfo button for device %s", device.nick_name)
 
     async def async_press(self) -> None:
-        _LOGGER.debug("Device info button pressed for device %s", self._device.nick_name)
+        _LOGGER.debug(
+            "Device info button pressed for device %s", self._device.nick_name
+        )
         title = f"{self._device.nick_name} Device Info"
         persistent_notification.create(
             self._hass, f"````\n```\n{self._device.diagnose}\n```\n````", title
         )
-        _LOGGER.info(self._device.diagnose.replace(" ", "\u200B "))
-        _LOGGER.debug("Device info notification created for device %s", self._device.nick_name)
+        _LOGGER.info(self._device.diagnose.replace(" ", "\u200b "))
+        _LOGGER.debug(
+            "Device info notification created for device %s", self._device.nick_name
+        )
 
 
 class HonDataArchive(HonEntity, ButtonEntity):
@@ -134,13 +150,12 @@ class HonDataArchive(HonEntity, ButtonEntity):
         _LOGGER.debug("Created HonDataArchive button for device %s", device.nick_name)
 
     async def async_press(self) -> None:
-        _LOGGER.debug("Data archive button pressed for device %s", self._device.nick_name)
-        if (config_dir := self._hass.config.config_dir) is None:
-            _LOGGER.error("Missing Config Dir for data archive creation")
-            raise ValueError("Missing Config Dir")
+        _LOGGER.debug(
+            "Data archive button pressed for device %s", self._device.nick_name
+        )
 
         try:
-            path = Path(config_dir) / "www"
+            path = Path(self._hass.config.config_dir) / "www"
             data = await self._device.data_archive(path)
             _LOGGER.debug("Data archive created at: %s", data)
 
@@ -151,7 +166,15 @@ class HonDataArchive(HonEntity, ButtonEntity):
                 f"Or add it to the [hon-test-data collection](https://github.com/Andre0512/hon-test-data)."
             )
             persistent_notification.create(self._hass, text, title)
-            _LOGGER.debug("Data archive notification created for device %s", self._device.nick_name)
+            _LOGGER.debug(
+                "Data archive notification created for device %s",
+                self._device.nick_name,
+            )
         except Exception as e:
-            _LOGGER.error("Failed to create data archive for device %s: %s", self._device.nick_name, e, exc_info=True)
+            _LOGGER.error(
+                "Failed to create data archive for device %s: %s",
+                self._device.nick_name,
+                e,
+                exc_info=True,
+            )
             raise
