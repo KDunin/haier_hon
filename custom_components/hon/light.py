@@ -133,21 +133,33 @@ class HonLightEntity(HonEntity, LightEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonLightEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonLightEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             self._attr_is_on = self.is_on
             self._attr_brightness = self.brightness
-            _LOGGER.debug("Light entity %s updated: is_on=%s, brightness=%s",
-                         self._attr_unique_id, self._attr_is_on, self._attr_brightness)
+            _LOGGER.debug(
+                "Light entity %s updated: is_on=%s, brightness=%s",
+                self._attr_unique_id,
+                self._attr_is_on,
+                self._attr_brightness,
+            )
 
             if update:
                 _LOGGER.debug("Light entity %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Light entity %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Light entity %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonLightEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonLightEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )
 
     @property
     def available(self) -> bool:

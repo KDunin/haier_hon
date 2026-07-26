@@ -336,29 +336,47 @@ class HonBinarySensorEntity(HonEntity, BinarySensorEntity):
     def is_on(self) -> bool:
         value = self._device.get(self.entity_description.key, "")
         result = bool(value == self.entity_description.on_value)
-        _LOGGER.debug("Binary sensor %s is_on: key=%s, value=%s, on_value=%s, result=%s",
-                     self._attr_unique_id, self.entity_description.key, value,
-                     self.entity_description.on_value, result)
+        _LOGGER.debug(
+            "Binary sensor %s is_on: key=%s, value=%s, on_value=%s, result=%s",
+            self._attr_unique_id,
+            self.entity_description.key,
+            value,
+            self.entity_description.on_value,
+            result,
+        )
         return result
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonBinarySensorEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonBinarySensorEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             value = self._device.get(self.entity_description.key, "")
             result = bool(value == self.entity_description.on_value)
 
-            _LOGGER.debug("Binary sensor %s update: key=%s, value=%s, on_value=%s, result=%s",
-                         self._attr_unique_id, self.entity_description.key, value,
-                         self.entity_description.on_value, result)
+            _LOGGER.debug(
+                "Binary sensor %s update: key=%s, value=%s, on_value=%s, result=%s",
+                self._attr_unique_id,
+                self.entity_description.key,
+                value,
+                self.entity_description.on_value,
+                result,
+            )
 
             self._attr_native_value = result
 
             if update:
                 _LOGGER.debug("Binary sensor %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Binary sensor %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Binary sensor %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonBinarySensorEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonBinarySensorEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )

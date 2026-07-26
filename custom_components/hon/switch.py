@@ -439,16 +439,23 @@ class HonSwitchEntity(HonEntity, SwitchEntity):
     def is_on(self) -> bool | None:
         """Return True if entity is on."""
         result = self._device.get(self.entity_description.key, 0) == 1
-        _LOGGER.debug("Switch %s is_on: key=%s, value=%s, result=%s",
-                     self._attr_unique_id, self.entity_description.key,
-                     self._device.get(self.entity_description.key, 0), result)
+        _LOGGER.debug(
+            "Switch %s is_on: key=%s, value=%s, result=%s",
+            self._attr_unique_id,
+            self.entity_description.key,
+            self._device.get(self.entity_description.key, 0),
+            result,
+        )
         return result
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         _LOGGER.debug("Switch %s turning ON", self._attr_unique_id)
         setting = self._device.settings[f"settings.{self.entity_description.key}"]
         if type(setting) == HonParameter:
-            _LOGGER.warning("Switch %s: setting is HonParameter, cannot turn on", self._attr_unique_id)
+            _LOGGER.warning(
+                "Switch %s: setting is HonParameter, cannot turn on",
+                self._attr_unique_id,
+            )
             return
         setting.value = setting.max if isinstance(setting, HonParameterRange) else 1
         self.async_write_ha_state()
@@ -460,7 +467,10 @@ class HonSwitchEntity(HonEntity, SwitchEntity):
         _LOGGER.debug("Switch %s turning OFF", self._attr_unique_id)
         setting = self._device.settings[f"settings.{self.entity_description.key}"]
         if type(setting) == HonParameter:
-            _LOGGER.warning("Switch %s: setting is HonParameter, cannot turn off", self._attr_unique_id)
+            _LOGGER.warning(
+                "Switch %s: setting is HonParameter, cannot turn off",
+                self._attr_unique_id,
+            )
             return
         setting.value = setting.min if isinstance(setting, HonParameterRange) else 0
         self.async_write_ha_state()
@@ -472,36 +482,58 @@ class HonSwitchEntity(HonEntity, SwitchEntity):
     def available(self) -> bool:
         """Return True if entity is available."""
         if not super().available:
-            _LOGGER.debug("Switch %s not available: super().available is False", self._attr_unique_id)
+            _LOGGER.debug(
+                "Switch %s not available: super().available is False",
+                self._attr_unique_id,
+            )
             return False
         if not self._device.get("remoteCtrValid", 1) == 1:
-            _LOGGER.debug("Switch %s not available: remoteCtrValid is not 1", self._attr_unique_id)
+            _LOGGER.debug(
+                "Switch %s not available: remoteCtrValid is not 1", self._attr_unique_id
+            )
             return False
         if self._device.get("attributes.lastConnEvent.category") == "DISCONNECTED":
-            _LOGGER.debug("Switch %s not available: device is DISCONNECTED", self._attr_unique_id)
+            _LOGGER.debug(
+                "Switch %s not available: device is DISCONNECTED", self._attr_unique_id
+            )
             return False
         setting = self._device.settings[f"settings.{self.entity_description.key}"]
         if isinstance(setting, HonParameterRange) and len(setting.values) < 2:
-            _LOGGER.debug("Switch %s not available: setting has less than 2 values", self._attr_unique_id)
+            _LOGGER.debug(
+                "Switch %s not available: setting has less than 2 values",
+                self._attr_unique_id,
+            )
             return False
         _LOGGER.debug("Switch %s is available", self._attr_unique_id)
         return True
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonSwitchEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonSwitchEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             self._attr_is_on = self.is_on
-            _LOGGER.debug("Switch %s updated is_on state: %s", self._attr_unique_id, self._attr_is_on)
+            _LOGGER.debug(
+                "Switch %s updated is_on state: %s",
+                self._attr_unique_id,
+                self._attr_is_on,
+            )
 
             if update:
                 _LOGGER.debug("Switch %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Switch %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Switch %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonSwitchEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonSwitchEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )
 
 
 class HonControlSwitchEntity(HonEntity, SwitchEntity):
@@ -511,9 +543,13 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
     def is_on(self) -> bool | None:
         """Return True if entity is on."""
         result = self._device.get(self.entity_description.key, False)
-        _LOGGER.debug("Control switch %s is_on: key=%s, value=%s, result=%s",
-                     self._attr_unique_id, self.entity_description.key,
-                     self._device.get(self.entity_description.key, False), result)
+        _LOGGER.debug(
+            "Control switch %s is_on: key=%s, value=%s, result=%s",
+            self._attr_unique_id,
+            self.entity_description.key,
+            self._device.get(self.entity_description.key, False),
+            result,
+        )
         return result
 
     async def async_turn_on(self, **kwargs: Any) -> None:
@@ -542,9 +578,14 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
             and int(self._device.get("remoteCtrValid", 1)) == 1
             and self._device.connection
         )
-        _LOGGER.debug("Control switch %s available: %s (super=%s, remoteCtrValid=%s, connection=%s)",
-                     self._attr_unique_id, result, super().available,
-                     self._device.get("remoteCtrValid", 1), self._device.connection)
+        _LOGGER.debug(
+            "Control switch %s available: %s (super=%s, remoteCtrValid=%s, connection=%s)",
+            self._attr_unique_id,
+            result,
+            super().available,
+            self._device.get("remoteCtrValid", 1),
+            self._device.connection,
+        )
         return result
 
     @property
@@ -557,7 +598,9 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
             result["end_time"] = datetime.now() + timedelta(
                 minutes=delay_time + remaining_time
             )
-            _LOGGER.debug("Control switch %s extra attributes: %s", self._attr_unique_id, result)
+            _LOGGER.debug(
+                "Control switch %s extra attributes: %s", self._attr_unique_id, result
+            )
         return result
 
 
@@ -573,16 +616,24 @@ class HonConfigSwitchEntity(HonEntity, SwitchEntity):
             if hasattr(setting, "min")
             else setting.value == "1"
         )
-        _LOGGER.debug("Config switch %s is_on: key=%s, setting.value=%s, setting.min=%s, result=%s",
-                     self._attr_unique_id, self.entity_description.key,
-                     getattr(setting, 'value', 'N/A'), getattr(setting, 'min', 'N/A'), result)
+        _LOGGER.debug(
+            "Config switch %s is_on: key=%s, setting.value=%s, setting.min=%s, result=%s",
+            self._attr_unique_id,
+            self.entity_description.key,
+            getattr(setting, "value", "N/A"),
+            getattr(setting, "min", "N/A"),
+            result,
+        )
         return result
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         _LOGGER.debug("Config switch %s turning ON", self._attr_unique_id)
         setting = self._device.settings[self.entity_description.key]
         if type(setting) == HonParameter:
-            _LOGGER.warning("Config switch %s: setting is HonParameter, cannot turn on", self._attr_unique_id)
+            _LOGGER.warning(
+                "Config switch %s: setting is HonParameter, cannot turn on",
+                self._attr_unique_id,
+            )
             return
         setting.value = setting.max if isinstance(setting, HonParameterRange) else "1"
         self.coordinator.async_set_updated_data({})
@@ -593,7 +644,10 @@ class HonConfigSwitchEntity(HonEntity, SwitchEntity):
         _LOGGER.debug("Config switch %s turning OFF", self._attr_unique_id)
         setting = self._device.settings[self.entity_description.key]
         if type(setting) == HonParameter:
-            _LOGGER.warning("Config switch %s: setting is HonParameter, cannot turn off", self._attr_unique_id)
+            _LOGGER.warning(
+                "Config switch %s: setting is HonParameter, cannot turn off",
+                self._attr_unique_id,
+            )
             return
         setting.value = setting.min if isinstance(setting, HonParameterRange) else "0"
         self.coordinator.async_set_updated_data({})
@@ -602,16 +656,28 @@ class HonConfigSwitchEntity(HonEntity, SwitchEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonConfigSwitchEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonConfigSwitchEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             self._attr_is_on = self.is_on
-            _LOGGER.debug("Config switch %s updated is_on state: %s", self._attr_unique_id, self._attr_is_on)
+            _LOGGER.debug(
+                "Config switch %s updated is_on state: %s",
+                self._attr_unique_id,
+                self._attr_is_on,
+            )
 
             if update:
                 _LOGGER.debug("Config switch %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Config switch %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Config switch %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonConfigSwitchEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonConfigSwitchEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )

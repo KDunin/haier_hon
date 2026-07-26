@@ -27,7 +27,9 @@ from hon.binary_sensor import BINARY_SENSORS, HonBinarySensorEntity
 
 
 def make_appliance(
-    zone: int, parameters: dict[str, str], extra_attributes: dict[str, Any] | None = None
+    zone: int,
+    parameters: dict[str, str],
+    extra_attributes: dict[str, Any] | None = None,
 ) -> HonAppliance:
     appliance = HonAppliance(
         None,
@@ -56,7 +58,9 @@ def get_description(appliance_type: str, translation_key: str):
     raise AssertionError(f"No {translation_key!r} description for {appliance_type!r}")
 
 
-@pytest.mark.parametrize("zone, on_off_value, expected", [(1, "1", True), (2, "0", False)])
+@pytest.mark.parametrize(
+    "zone, on_off_value, expected", [(1, "1", True), (2, "0", False)]
+)
 def test_ih_zone_on_sensor_reflects_real_zone_state(zone, on_off_value, expected):
     """Regression test: this is the exact entity (binary_sensor.<model>_z1_on)
     that always reported "off" regardless of the real hob state."""
@@ -108,7 +112,10 @@ def test_on_value_type_matches_what_pyhon_returns_for_numeric_fields(appliance_t
     on_value looks like a bare digit must use an int/float, not a string,
     since pyhon always unwraps numeric attribute values to int/float."""
     for description in BINARY_SENSORS[appliance_type]:
-        if isinstance(description.on_value, str) and description.on_value.strip("-").isdigit():
+        if (
+            isinstance(description.on_value, str)
+            and description.on_value.strip("-").isdigit()
+        ):
             pytest.fail(
                 f"{appliance_type}/{description.translation_key}: on_value="
                 f"{description.on_value!r} is a numeric-looking string; pyhon "

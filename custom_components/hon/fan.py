@@ -116,7 +116,9 @@ class HonFanEntity(HonEntity, FanEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonFanEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonFanEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             wind_speed = self._device.settings.get(self.entity_description.key)
@@ -127,18 +129,31 @@ class HonFanEntity(HonEntity, FanEntity):
                     int(self._wind_speed.values[-1]),
                 )
                 self._attr_percentage = self.percentage
-                _LOGGER.debug("Fan entity %s updated wind speed settings: range=%s, percentage=%s",
-                             self._attr_unique_id, self._speed_range, self._attr_percentage)
+                _LOGGER.debug(
+                    "Fan entity %s updated wind speed settings: range=%s, percentage=%s",
+                    self._attr_unique_id,
+                    self._speed_range,
+                    self._attr_percentage,
+                )
             else:
-                _LOGGER.debug("Fan entity %s wind speed not available or invalid", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Fan entity %s wind speed not available or invalid",
+                    self._attr_unique_id,
+                )
 
             if update:
                 _LOGGER.debug("Fan entity %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Fan entity %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Fan entity %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonFanEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonFanEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )
 
     @property
     def available(self) -> bool:

@@ -267,23 +267,39 @@ class HonConfigSelectEntity(HonEntity, SelectEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonConfigSelectEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonConfigSelectEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             self._attr_available = self.available
             self._attr_options = self.options
             self._attr_current_option = self.current_option
 
-            _LOGGER.debug("Config select entity %s updated: available=%s, options=%s, current_option=%s",
-                         self._attr_unique_id, self._attr_available, self._attr_options, self._attr_current_option)
+            _LOGGER.debug(
+                "Config select entity %s updated: available=%s, options=%s, current_option=%s",
+                self._attr_unique_id,
+                self._attr_available,
+                self._attr_options,
+                self._attr_current_option,
+            )
 
             if update:
-                _LOGGER.debug("Config select entity %s writing HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Config select entity %s writing HA state", self._attr_unique_id
+                )
                 self.async_write_ha_state()
-                _LOGGER.debug("Config select entity %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Config select entity %s successfully wrote HA state",
+                    self._attr_unique_id,
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonConfigSelectEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonConfigSelectEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )
 
     @property
     def available(self) -> bool:
@@ -342,20 +358,33 @@ class HonSelectEntity(HonEntity, SelectEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonSelectEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonSelectEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             self._attr_available = self.available
             self._attr_options = self.options
             self._attr_current_option = self.current_option
 
-            _LOGGER.debug("Select entity %s updated: available=%s, options=%s, current_option=%s",
-                         self._attr_unique_id, self._attr_available, self._attr_options, self._attr_current_option)
+            _LOGGER.debug(
+                "Select entity %s updated: available=%s, options=%s, current_option=%s",
+                self._attr_unique_id,
+                self._attr_available,
+                self._attr_options,
+                self._attr_current_option,
+            )
 
             if update:
                 _LOGGER.debug("Select entity %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Select entity %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Select entity %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonSelectEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonSelectEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )

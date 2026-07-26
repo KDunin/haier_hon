@@ -264,7 +264,9 @@ class HonNumberEntity(HonEntity, NumberEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonNumberEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonNumberEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             setting = self._device.settings[self.entity_description.key]
@@ -272,20 +274,34 @@ class HonNumberEntity(HonEntity, NumberEntity):
                 self._attr_native_max_value = setting.max
                 self._attr_native_min_value = setting.min
                 self._attr_native_step = setting.step
-                _LOGGER.debug("Number entity %s updated range: min=%s, max=%s, step=%s",
-                             self._attr_unique_id, self._attr_native_min_value,
-                             self._attr_native_max_value, self._attr_native_step)
+                _LOGGER.debug(
+                    "Number entity %s updated range: min=%s, max=%s, step=%s",
+                    self._attr_unique_id,
+                    self._attr_native_min_value,
+                    self._attr_native_max_value,
+                    self._attr_native_step,
+                )
 
             self._attr_native_value = self.native_value
-            _LOGGER.debug("Number entity %s updated value: %s", self._attr_unique_id, self._attr_native_value)
+            _LOGGER.debug(
+                "Number entity %s updated value: %s",
+                self._attr_unique_id,
+                self._attr_native_value,
+            )
 
             if update:
                 _LOGGER.debug("Number entity %s writing HA state", self._attr_unique_id)
                 self.async_write_ha_state()
-                _LOGGER.debug("Number entity %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Number entity %s successfully wrote HA state", self._attr_unique_id
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonNumberEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonNumberEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )
 
     @property
     def available(self) -> bool:
@@ -334,7 +350,9 @@ class HonConfigNumberEntity(HonEntity, NumberEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        _LOGGER.debug("HonConfigNumberEntity %s handling coordinator update", self._attr_unique_id)
+        _LOGGER.debug(
+            "HonConfigNumberEntity %s handling coordinator update", self._attr_unique_id
+        )
 
         try:
             setting = self._device.settings[self.entity_description.key]
@@ -342,17 +360,34 @@ class HonConfigNumberEntity(HonEntity, NumberEntity):
                 self._attr_native_max_value = setting.max
                 self._attr_native_min_value = setting.min
                 self._attr_native_step = setting.step
-                _LOGGER.debug("Config number entity %s updated range: min=%s, max=%s, step=%s",
-                             self._attr_unique_id, self._attr_native_min_value,
-                             self._attr_native_max_value, self._attr_native_step)
+                _LOGGER.debug(
+                    "Config number entity %s updated range: min=%s, max=%s, step=%s",
+                    self._attr_unique_id,
+                    self._attr_native_min_value,
+                    self._attr_native_max_value,
+                    self._attr_native_step,
+                )
 
             self._attr_native_value = self.native_value
-            _LOGGER.debug("Config number entity %s updated value: %s", self._attr_unique_id, self._attr_native_value)
+            _LOGGER.debug(
+                "Config number entity %s updated value: %s",
+                self._attr_unique_id,
+                self._attr_native_value,
+            )
 
             if update:
-                _LOGGER.debug("Config number entity %s writing HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Config number entity %s writing HA state", self._attr_unique_id
+                )
                 self.async_write_ha_state()
-                _LOGGER.debug("Config number entity %s successfully wrote HA state", self._attr_unique_id)
+                _LOGGER.debug(
+                    "Config number entity %s successfully wrote HA state",
+                    self._attr_unique_id,
+                )
         except Exception as e:
-            _LOGGER.error("Error in HonConfigNumberEntity %s coordinator update: %s",
-                         self._attr_unique_id, e, exc_info=True)
+            _LOGGER.error(
+                "Error in HonConfigNumberEntity %s coordinator update: %s",
+                self._attr_unique_id,
+                e,
+                exc_info=True,
+            )
