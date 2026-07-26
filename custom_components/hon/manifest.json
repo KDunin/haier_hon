@@ -1,14 +1,14 @@
 {
   "domain": "hon",
-  "name": "Haier hOn",
+  "name": "Haier hOn (KDunin fork)",
   "codeowners": [
-    "@Andre0512"
+    "@KDunin"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/Andre0512/hon/",
+  "documentation": "https://github.com/KDunin/haier_hon/",
   "integration_type": "hub",
   "iot_class": "cloud_push",
-  "issue_tracker": "https://github.com/Andre0512/hon/issues",
+  "issue_tracker": "https://github.com/KDunin/haier_hon/issues",
   "loggers": [
     "pyhon"
   ],

@@ -1,25 +1,31 @@
-# Haier hOn
-[![hacs_badge](https://img.shields.io/badge/hacs-Default-41BDF5.svg)](https://hacs.xyz)
-[![GitHub](https://img.shields.io/github/license/Andre0512/hon?color=red)](https://github.com/Andre0512/hon/blob/main/LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Andre0512/hon/python_check.yml?branch=main&label=checks)](https://github.com/Andre0512/hon/actions/workflows/python_check.yml)
+# Haier hOn (KDunin fork)
+[![hacs_badge](https://img.shields.io/badge/hacs-Custom-orange.svg)](https://hacs.xyz)
+[![GitHub](https://img.shields.io/github/license/KDunin/haier_hon?color=red)](https://github.com/KDunin/haier_hon/blob/main/LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/KDunin/haier_hon/python_check.yml?branch=main&label=checks)](https://github.com/KDunin/haier_hon/actions/workflows/python_check.yml)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-donate-orange.svg)](https://www.buymeacoffee.com/andre0512)  
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Andre0512/hon?color=green)](https://github.com/Andre0512/hon/releases/latest)
-[![GitHub all releases](https://img.shields.io/github/downloads/Andre0512/hon/latest/total?color=blue&label=downloads)](https://tooomm.github.io/github-release-stats/?username=Andre0512&repository=hon)
-[![GitHub all releases](https://img.shields.io/github/downloads/Andre0512/hon/total?color=blue&label=total%20downloads)](https://tooomm.github.io/github-release-stats/?username=Andre0512&repository=hon)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/KDunin/haier_hon?color=green)](https://github.com/KDunin/haier_hon/releases/latest)
+[![GitHub all releases](https://img.shields.io/github/downloads/KDunin/haier_hon/latest/total?color=blue&label=downloads)](https://tooomm.github.io/github-release-stats/?username=KDunin&repository=haier_hon)
+[![GitHub all releases](https://img.shields.io/github/downloads/KDunin/haier_hon/total?color=blue&label=total%20downloads)](https://tooomm.github.io/github-release-stats/?username=KDunin&repository=haier_hon)
 
 ---
 
-Home Assistant integration for [Haier's mobile app hOn](https://hon-smarthome.com/) based on [pyhOn](https://github.com/Andre0512/pyhon).
+> **This is a community fork** of [Andre0512/hon](https://github.com/Andre0512/hon), maintained by
+> [@KDunin](https://github.com/KDunin). Please file issues and feature requests against
+> [this fork](https://github.com/KDunin/haier_hon/issues), not the upstream project.
+
+Home Assistant integration for [Haier's mobile app hOn](https://hon-smarthome.com/) based on [pyhOn (KDunin fork)](https://github.com/KDunin/pyhOn).
 
 ---
 
 
-[![Supported Languages](https://img.shields.io/badge/Languages-28-royalblue)](https://github.com/Andre0512/hon#supported-languages)
-[![Supported Appliances](https://img.shields.io/badge/Appliances-11-forestgreen)](https://github.com/Andre0512/hon#supported-appliances)
-[![Supported Models](https://img.shields.io/badge/Models-134-yellowgreen)](https://github.com/Andre0512/hon#supported-appliances)
-[![Supported Entities](https://img.shields.io/badge/Entities-320-crimson)](https://github.com/Andre0512/hon#supported-appliances)
+[![Supported Languages](https://img.shields.io/badge/Languages-28-royalblue)](https://github.com/KDunin/haier_hon#supported-languages)
+[![Supported Appliances](https://img.shields.io/badge/Appliances-11-forestgreen)](https://github.com/KDunin/haier_hon#supported-appliances)
+[![Supported Models](https://img.shields.io/badge/Models-134-yellowgreen)](https://github.com/KDunin/haier_hon#supported-appliances)
+[![Supported Entities](https://img.shields.io/badge/Entities-320-crimson)](https://github.com/KDunin/haier_hon#supported-appliances)
 
 ## Takedown Story
+_This history belongs to the upstream project and predates this fork._
+
 Haier sent a takedown notice and threatened legal action. The community started a big riot and called for a Haier boycott, the repository was forked over 2000+ times to make the code undeletable. Haier starts a dialog to find a joint solution. Read all about it here:  
 - [Timeline of events](https://github.com/Andre0512/hon/blob/main/takedown_timeline.md)
 - [Takedown FAQs](https://github.com/Andre0512/hon/blob/main/takedown_faq.md)
@@ -735,11 +741,11 @@ Support has been confirmed for these **44 models**, but many more will work. Ple
 
 
 ## Installation
-**Method 1:** [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Andre0512&repository=hon&category=integration)
+**Method 1:** [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=KDunin&repository=haier_hon&category=integration)
 
-**Method 2:** [HACS](https://hacs.xyz/) > Integrations > Add Integration > **Haier hOn** > Install  
+**Method 2:** [HACS](https://hacs.xyz/) > add `https://github.com/KDunin/haier_hon` as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories/) (category: Integration) > Install **Haier hOn (KDunin fork)**.
 
-**Method 3:** Manually copy `hon` folder from [latest release](https://github.com/Andre0512/hon/releases/latest) to `config/custom_components` folder.
+**Method 3:** Manually copy the `hon` folder from the [latest release](https://github.com/KDunin/haier_hon/releases/latest) to your `config/custom_components` folder.
 
 _Restart Home Assistant_
 
@@ -747,7 +753,7 @@ _Restart Home Assistant_
 
 **Method 1**: [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=hon)
 
-**Method 2**: Settings > Devices & Services > Add Integration > **Haier hOn**  
+**Method 2**: Settings > Devices & Services > Add Integration > **Haier hOn (KDunin fork)**  
 _If the integration is not in the list, you need to clear the browser cache._
 
 ## Example Dashboard
@@ -802,10 +808,10 @@ The apps on this (incomplete) list have been requested so far:
 | Haier Evo       | Russia        | :x:                                     |                                                                                 |
 
 ## Contribute
-Any kind of contribution is welcome!
+Any kind of contribution is welcome! Please open pull requests against [this fork](https://github.com/KDunin/haier_hon), not the upstream project.
 
 
-| Please add your appliances data to our [hon-test-data collection](https://github.com/Andre0512/hon-test-data). <br/>This helps us to develop new features and not to break compatibility in newer versions. |
+| Please add your appliances data to the upstream [hon-test-data collection](https://github.com/Andre0512/hon-test-data). <br/>This is a shared community resource that helps develop new features and avoid breaking compatibility in newer versions. |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 
@@ -815,9 +821,9 @@ For every device exists a button under diagnostics which can be used to log all 
 1. Press the button to create a notification
 2. Open home assistant notifications and copy the message (Crtl+A, Ctrl+C)
 ### Add appliances or additional attributes
-1. Install [pyhOn](https://github.com/Andre0512/pyhOn)
+1. Install [pyhOn (this fork)](https://github.com/KDunin/pyhOn) - installing the `pyhOn` package from PyPI instead gets you the *upstream* library without this fork's fixes
    ```commandline
-    $ pip install pyhOn
+    $ pip install "pyhOn @ git+https://github.com/KDunin/pyhOn.git@main"
     ```
 2. Use the command line tool to read out all appliance data from your account
     ```commandline
@@ -851,21 +857,23 @@ For every device exists a button under diagnostics which can be used to log all 
             ),
         ...
     ```
-5. Create a [pull request](https://github.com/Andre0512/hon/pulls)
+5. Create a [pull request](https://github.com/KDunin/haier_hon/pulls)
 
 #### Tips and Tricks
 - If you want to have some states humanreadable, have a look at the `translation_key` parameter of the `EntityDescription`.
 - If you need to implement some more logic, create a pull request to the underlying library. There we collect special requirements in the `appliances` directory.
-- Use [pyhOn's translate command](https://github.com/Andre0512/pyhOn#translation) to read out the official translations
+- Use [pyhOn's translate command](https://github.com/KDunin/pyhOn#translation) to read out the official translations
 
 ## Special Thanks
+_Carried over from the upstream project this fork builds on:_
 - to [@alexandre-leites](https://github.com/alexandre-leites), [@MiguelAngelLV](https://github.com/MiguelAngelLV) and [@drudgebg](https://github.com/drudgebg) for contributing early to this project and adding new integrations.
-- to [gvigroux/hon](https://github.com/gvigroux/hon), [signalize/hon-app-research](https://github.com/signalize/hon-app-research) and [slegars56/hon](https://github.com/slegars56/hon) for inspiring me to do this integration and for doing pioneer work on the hOn api.
+- to [gvigroux/hon](https://github.com/gvigroux/hon), [signalize/hon-app-research](https://github.com/signalize/hon-app-research) and [slegars56/hon](https://github.com/slegars56/hon) for inspiring the original integration and for doing pioneer work on the hOn api.
 - to everyone who contributed, created an issue, gave this repo a star, and used this integration.
-- to the patience of my girlfriend as I work on this integration.
+- to the patience of [@Andre0512](https://github.com/Andre0512)'s girlfriend as he worked on the original integration.
 
 ## Support
-If you find this project helpful and would like to support its development, you can buy me a coffee! ☕
+This fork is unpaid community maintenance work. If you'd like to support the original project this
+is built on, you can buy the upstream author a coffee! ☕
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/andre0512)
 
